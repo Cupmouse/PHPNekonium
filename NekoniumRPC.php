@@ -2,11 +2,11 @@
 
 namespace kabayaki\PHPNekonium;
 
-include_once __DIR__ . '\NekMethods.php'; // For library user
+include_once __DIR__.'\NekMethods.php'; // For library user
 include_once __DIR__.'\NekMethodCaller.php';
 include_once __DIR__.'\NekMethod.php';
-include_once __DIR__.'\NekConnectionException.php';
-include_once __DIR__ . '\NekServerSideException.php';
+include_once __DIR__.'\util\NekConnectionException.php';
+include_once __DIR__.'\util\NekServerSideException.php';
 include_once __DIR__.'\NekMethodCallResult.php';
 
 /**

@@ -19,19 +19,19 @@ abstract class NekMethodCaller extends NekClient
     {
         return $this->callNamed(__FUNCTION__, array());
     }
-    public function web3_sha3(): string
+    public function web3_sha3(data $data): string
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__, array($data));
     }
     public function net_version(): string
     {
         return $this->callNamed(__FUNCTION__, array());
     }
-    public function net_peerCount(): string
+    public function net_peerCount(): quantity
     {
         return $this->callNamed(__FUNCTION__, array());
     }
-    public function net_listening(): string
+    public function net_listening(): bool
     {
         return $this->callNamed(__FUNCTION__, array());
     }

@@ -2,8 +2,8 @@
 
 namespace kabayaki\PHPNekonium;
 
-include_once __DIR__.'\NekConnectionException.php';
-include_once __DIR__ . '\NekServerSideException.php';
+include_once __DIR__.'\util\NekConnectionException.php';
+include_once __DIR__.'\util\NekServerSideException.php';
 include_once __DIR__.'\NekMethodCallResult.php';
 
 abstract class NekClient
@@ -33,7 +33,7 @@ abstract class NekClient
      * @throws NekConnectionException When connection error occurred
      * @throws NekServerSideException When server side error occurred
      */
-    protected function _callNamed(string $methodName, array $paramArray)
+    protected function _callNamed(string $methodName, array $paramArray): mixed
     {
         $nonce = $this->getNonce();
 
@@ -80,7 +80,7 @@ abstract class NekClient
      * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If $method was null
      */
-    public function call(NekMethod $method)
+    public function call(NekMethod $method): mixed
     {
         if ($method === null)
             throw new \InvalidArgumentException('$method cannot be null');
@@ -98,7 +98,7 @@ abstract class NekClient
      * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If one of function parameter was null
      */
-    public function callNamed(string $methodName, array $paramArray)
+    public function callNamed(string $methodName, array $paramArray): mixed
     {
         if ($methodName === null)
             throw new \InvalidArgumentException('$method cannot be null');
