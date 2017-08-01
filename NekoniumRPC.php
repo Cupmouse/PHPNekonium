@@ -2,8 +2,8 @@
 
 namespace kabayaki\PHPNekonium;
 
-include_once __DIR__.'\NekMethods.php'; // For library user
-include_once __DIR__.'\NekClient.php';
+include_once __DIR__ . '\NekMethods.php'; // For library user
+include_once __DIR__.'\NekMethodCaller.php';
 include_once __DIR__.'\NekMethod.php';
 include_once __DIR__.'\NekConnectionException.php';
 include_once __DIR__ . '\NekServerSideException.php';
@@ -20,7 +20,7 @@ include_once __DIR__.'\NekMethodCallResult.php';
  *
  * @package kabayaki\PHPNekonium
  */
-class NekoniumRPC extends NekClient
+class NekoniumRPC extends NekMethodCaller
 {
     private $host;
     private $port;

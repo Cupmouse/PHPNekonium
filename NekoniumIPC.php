@@ -2,7 +2,7 @@
 
 namespace kabayaki\PHPNekonium;
 
-include_once __DIR__.'\NekMethods.php'; // For library user
+include_once __DIR__ . '\NekMethods.php'; // For library user
 include_once __DIR__.'\NekClient.php';
 include_once __DIR__.'\NekMethod.php';
 include_once __DIR__.'\NekConnectionException.php';
@@ -20,7 +20,7 @@ include_once __DIR__.'\NekMethodCallResult.php';
  *
  * @package kabayaki\PHPNekonium
  */
-class NekoniumIPC extends NekClient
+class NekoniumIPC extends NekMethodCaller
 {
     private $ipcpath;
 
@@ -145,7 +145,7 @@ class NekoniumIPC extends NekClient
     /**
      * {@inheritdoc}
      */
-    public function call(NekMethod $method): NekMethodCallResult
+    public function call(NekMethod $method)
     {
         if ($this->socket === null)
             throw new NekConnectionException('Not connected to Nekonium IPC yet');
@@ -156,7 +156,7 @@ class NekoniumIPC extends NekClient
     /**
      * {@inheritdoc}
      */
-    public function callNamed(string $methodName, array $paramArray): NekMethodCallResult
+    public function callNamed(string $methodName, array $paramArray)
     {
         if ($this->socket === null)
             throw new NekConnectionException('Not connected to Nekonium IPC yet');

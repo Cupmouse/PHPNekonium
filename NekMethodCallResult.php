@@ -2,7 +2,7 @@
 
 namespace kabayaki\PHPNekonium;
 
-class NekMethodCallResult
+abstract class NekMethodCallResult
 {
     private $id;
     private $result;

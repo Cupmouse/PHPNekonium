@@ -29,11 +29,11 @@ abstract class NekClient
      *
      * @param string $methodName method name
      * @param array $paramArray methods parameter
-     * @return NekMethodCallResult Result of method call
+     * @return mixed Result of method call
      * @throws NekConnectionException When connection error occurred
      * @throws NekServerSideException When server side error occurred
      */
-    protected function _callNamed(string $methodName, array $paramArray): NekMethodCallResult
+    protected function _callNamed(string $methodName, array $paramArray)
     {
         $nonce = $this->getNonce();
 
@@ -50,10 +50,10 @@ abstract class NekClient
 
         // Now conversion
 
-        $encoded = json_decode($result);
+        $encoded = json_decode($result, true);
 
         // Id returned from server has to be same as id sent
-        if ($encoded->id !== $nonce)
+        if ($encoded['id'] !== $nonce)
             throw new NekConnectionException(
                 "Id server returned is not same as id sent, bad server behavior");
 
@@ -62,12 +62,12 @@ abstract class NekClient
             // TODO Server may close connection immediately after returning an error, should we detect that? (For IPC)
 
             // Throwing an error
-            throw new NekServerSideException($encoded->error->message, $encoded->error->code);
+            throw new NekServerSideException($encoded['error']['message'], $encoded['error']['code']);
         }
 
         // No error, successfully called method
 
-        return new NekmethodCallResult($encoded->id, (array) $encoded->result);
+        return $encoded['result'];
     }
 
     /**
@@ -75,12 +75,12 @@ abstract class NekClient
      * @link NekMethods List of method
      *
      * @param NekMethod $method
-     * @return NekMethodCallResult Result of method call
+     * @return mixed Result of method call
      * @throws NekConnectionException If exception occurred when calling method
      * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If $method was null
      */
-    public function call(NekMethod $method): NekMethodCallResult
+    public function call(NekMethod $method)
     {
         if ($method === null)
             throw new \InvalidArgumentException('$method cannot be null');
@@ -93,12 +93,12 @@ abstract class NekClient
      *
      * @param string $methodName Nekonium API method name
      * @param array $paramArray Method parameter
-     * @return NekMethodCallResult Result of method call
+     * @return mixed Result of method call
      * @throws NekConnectionException If exception occurred when calling method
      * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If one of function parameter was null
      */
-    public function callNamed(string $methodName, array $paramArray): NekMethodCallResult
+    public function callNamed(string $methodName, array $paramArray)
     {
         if ($methodName === null)
             throw new \InvalidArgumentException('$method cannot be null');
