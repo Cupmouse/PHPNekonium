@@ -2,9 +2,18 @@
 
 namespace kabayaki\PHPNekonium;
 
+include_once __DIR__.'\NekConnectionException.php';
+include_once __DIR__ . '\NekServerSideException.php';
+include_once __DIR__.'\NekMethodCallResult.php';
+
 abstract class NekClient
 {
-    private $nonce;
+    private $nonce = 0;
+
+    public function getNonce()
+    {
+        return $this->nonce++;
+    }
 
     /**
      * Send raw message to server. internal function
@@ -22,15 +31,17 @@ abstract class NekClient
      * @param array $paramArray methods parameter
      * @return NekMethodCallResult Result of method call
      * @throws NekConnectionException When connection error occurred
-     * @throws NekMethodCallException When server side error occurred
+     * @throws NekServerSideException When server side error occurred
      */
     protected function _callNamed(string $methodName, array $paramArray): NekMethodCallResult
     {
+        $nonce = $this->getNonce();
+
         $dataArray = array();
         $dataArray['jsonrpc'] = '2.0';
-        $dataArray['id'] = $this->nonce++;
         $dataArray['method'] = $methodName;
         $dataArray['params'] = $paramArray;
+        $dataArray['id'] = $nonce;
 
         $callData = json_encode($dataArray);
 
@@ -40,16 +51,23 @@ abstract class NekClient
         // Now conversion
 
         $encoded = json_decode($result);
+
+        // Id returned from server has to be same as id sent
+        if ($encoded->id !== $nonce)
+            throw new NekConnectionException(
+                "Id server returned is not same as id sent, bad server behavior");
+
         if (array_key_exists('error', $encoded)) {
             // Server side error
             // TODO Server may close connection immediately after returning an error, should we detect that? (For IPC)
 
             // Throwing an error
-            throw new NekMethodCallException($encoded['error']['message'], $encoded['error']['code']);
+            throw new NekServerSideException($encoded->error->message, $encoded->error->code);
         }
 
         // No error, successfully called method
-        // TODO
+
+        return new NekmethodCallResult($encoded->id, (array) $encoded->result);
     }
 
     /**
@@ -59,13 +77,11 @@ abstract class NekClient
      * @param NekMethod $method
      * @return NekMethodCallResult Result of method call
      * @throws NekConnectionException If exception occurred when calling method
-     * @throws NekMethodCallException If error occurred when server processing your call
+     * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If $method was null
      */
     public function call(NekMethod $method): NekMethodCallResult
     {
-        if ($this->socket === null)
-            throw new NekConnectionException('Not connected to Nekonium IPC yet');
         if ($method === null)
             throw new \InvalidArgumentException('$method cannot be null');
 
@@ -79,14 +95,11 @@ abstract class NekClient
      * @param array $paramArray Method parameter
      * @return NekMethodCallResult Result of method call
      * @throws NekConnectionException If exception occurred when calling method
-     * @throws NekMethodCallException If error occurred when server processing your call
+     * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If one of function parameter was null
      */
     public function callNamed(string $methodName, array $paramArray): NekMethodCallResult
     {
-        if ($this->socket === null)
-            throw new NekConnectionException('Not connected to Nekonium IPC yet');
-
         if ($methodName === null)
             throw new \InvalidArgumentException('$method cannot be null');
         if ($paramArray === null)
@@ -106,9 +119,6 @@ abstract class NekClient
      */
     public function sendRaw(string $rawData): string
     {
-        if ($this->socket === null)
-            throw new NekConnectionException('Not connected to Nekonium IPC yet');
-
         return $this->_sendRaw($rawData);
     }
 }

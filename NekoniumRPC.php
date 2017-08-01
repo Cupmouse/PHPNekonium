@@ -2,6 +2,13 @@
 
 namespace kabayaki\PHPNekonium;
 
+include_once __DIR__.'\NekMethods.php'; // For library user
+include_once __DIR__.'\NekClient.php';
+include_once __DIR__.'\NekMethod.php';
+include_once __DIR__.'\NekConnectionException.php';
+include_once __DIR__ . '\NekServerSideException.php';
+include_once __DIR__.'\NekMethodCallResult.php';
+
 /**
  * Despite IPC client, RPC client connect and send message EVERY TIME you issue a method call,
  * which takes more computation resource. And it's also lacks security and so by default, go-nekonium is not supporting
@@ -26,9 +33,9 @@ class NekoniumRPC extends NekClient
      * For more information, see {@link NekoniumRPC}.
      *
      * @param $host string Nekonium RPC host address to connect
-     * @param $port string Nekonium RPC port to connect
+     * @param $port int Nekonium RPC port to connect
      */
-    public function __construct($host, $port)
+    public function __construct(string $host, int $port)
     {
         $this->host = $host;
         $this->port = $port;
@@ -55,7 +62,7 @@ class NekoniumRPC extends NekClient
         // Set POST setting
         curl_setopt($cu, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_setopt($cu, CURLOPT_POST, true);
-        curl_setopt($cu, CURLOPT_POSTFIELDS, json_encode($rawData));
+        curl_setopt($cu, CURLOPT_POSTFIELDS, $rawData);
 
         // Instead of printing out result, we want result to be returned
         curl_setopt($cu, CURLOPT_RETURNTRANSFER, true);

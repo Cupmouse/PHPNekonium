@@ -2,6 +2,8 @@
 
 namespace kabayaki\PHPNekonium;
 
+include_once __DIR__.'\NekMethod.php';
+
 /**
  * Lists of Nekonium API method.
  *

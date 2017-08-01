@@ -2,6 +2,13 @@
 
 namespace kabayaki\PHPNekonium;
 
+include_once __DIR__.'\NekMethods.php'; // For library user
+include_once __DIR__.'\NekClient.php';
+include_once __DIR__.'\NekMethod.php';
+include_once __DIR__.'\NekConnectionException.php';
+include_once __DIR__ . '\NekServerSideException.php';
+include_once __DIR__.'\NekMethodCallResult.php';
+
 /**
  * YOU NEED TO CALL close() AFTER COMMUNICATING.
  *
@@ -134,4 +141,39 @@ class NekoniumIPC extends NekClient
 
         return $buf;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function call(NekMethod $method): NekMethodCallResult
+    {
+        if ($this->socket === null)
+            throw new NekConnectionException('Not connected to Nekonium IPC yet');
+
+        return parent::call($method);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function callNamed(string $methodName, array $paramArray): NekMethodCallResult
+    {
+        if ($this->socket === null)
+            throw new NekConnectionException('Not connected to Nekonium IPC yet');
+
+        return parent::callNamed($methodName, $paramArray);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function sendRaw(string $rawData): string
+    {
+        if ($this->socket === null)
+            throw new NekConnectionException('Not connected to Nekonium IPC yet');
+
+        return parent::sendRaw($rawData);
+    }
+
+
 }
