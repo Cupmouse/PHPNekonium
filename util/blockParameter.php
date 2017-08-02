@@ -86,7 +86,7 @@ class blockParameter implements NekoniumType
         if (is_a($this->blockParameter, 'kabayaki\PHPNekonium\quantity')) {
             // It is block number
 
-            return $this->blockParameter;
+            return $this->blockParameter->toJsonCompatible();
         } else {
             // It is tag
 

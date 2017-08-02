@@ -130,7 +130,7 @@ class data implements NekoniumType
     public static function nothing(): data
     {
         if (self::$nothing === null) {
-            self::$nothing = self::fromHex('0x');
+            self::$nothing = new data('0x');
         }
 
         return self::$nothing;
