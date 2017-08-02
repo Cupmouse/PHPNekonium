@@ -33,7 +33,7 @@ abstract class NekClient
      * @throws NekConnectionException When connection error occurred
      * @throws NekServerSideException When server side error occurred
      */
-    protected function _callNamed(string $methodName, array $paramArray): mixed
+    protected function _callNamed(string $methodName, array $paramArray)
     {
         $nonce = $this->getNonce();
 
@@ -80,7 +80,7 @@ abstract class NekClient
      * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If $method was null
      */
-    public function call(NekMethod $method): mixed
+    public function call(NekMethod $method)
     {
         if ($method === null)
             throw new \InvalidArgumentException('$method cannot be null');
@@ -98,7 +98,7 @@ abstract class NekClient
      * @throws NekServerSideException If error occurred when server processing your call
      * @throws \InvalidArgumentException If one of function parameter was null
      */
-    public function callNamed(string $methodName, array $paramArray): mixed
+    public function callNamed(string $methodName, array $paramArray)
     {
         if ($methodName === null)
             throw new \InvalidArgumentException('$method cannot be null');

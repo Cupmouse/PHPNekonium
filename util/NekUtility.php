@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Converts hex string to BCMath compatible string.
+ * Converts hex string with <b>no prefix</b> to BCMath compatible string.
  *
  * @param $hex string Hex data
  * @return string BCMath compatible string of $hex
@@ -44,10 +44,39 @@ function hexbc($hex): string
 }
 
 /**
- * Converts BCMath string to hex string
+ * Converts BCMath string to hex string with <b>no prefix</b>.
  *
  * @param $bcmath string BCMath string
  */
-function bchex(string $bcmath) {
+function bchex(string $bcmath): string
+{
+    $result = '';
 
+    // Continues until remaining becomes 0
+    $mod = '';
+    for ($i = 0; ; $i++) {
+        $mod = bcmod($bcmath, '16');
+
+        switch ($mod) {
+            case '10': $result = 'A' . $result; break;
+            case '11': $result = 'B' . $result; break;
+            case '12': $result = 'C' . $result; break;
+            case '13': $result = 'D' . $result; break;
+            case '14': $result = 'E' . $result; break;
+            case '15': $result = 'F' . $result; break;
+            default:
+                // 0~9 in 10 base is same as 0~9 in 16 base
+                // Append $mod on top of $result
+                $result = $mod . $result;
+                break;
+        }
+
+        // $bcmath is not reference so change in this function will not affect variable called from
+        $bcmath = bcdiv($bcmath, '16');
+
+        // If $bcmath is 0, ends conversion
+        if (bccomp($bcmath, '0') === 0) {
+            return $result;
+        }
+    }
 }

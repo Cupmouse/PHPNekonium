@@ -3,6 +3,11 @@
 namespace kabayaki\PHPNekonium;
 
 include_once __DIR__.'\NekClient.php';
+include_once __DIR__.'\util\block.php';
+include_once __DIR__.'\util\blockParameter.php';
+include_once __DIR__.'\util\quantity.php';
+include_once __DIR__.'\util\transaction.php';
+include_once __DIR__.'\util\transactions.php';
 
 /**
  * Nekonium API method caller.
@@ -19,9 +24,9 @@ abstract class NekMethodCaller extends NekClient
     {
         return $this->callNamed(__FUNCTION__, array());
     }
-    public function web3_sha3(data $data): string
+    public function web3_sha3(data $data): data
     {
-        return $this->callNamed(__FUNCTION__, array($data));
+        return data::fromHex($this->callNamed(__FUNCTION__, array($data)));
     }
     public function net_version(): string
     {
@@ -29,7 +34,7 @@ abstract class NekMethodCaller extends NekClient
     }
     public function net_peerCount(): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__, array()));
     }
     public function net_listening(): bool
     {
@@ -39,93 +44,192 @@ abstract class NekMethodCaller extends NekClient
     {
         return $this->callNamed(__FUNCTION__, array());
     }
-    public function eth_syncing(): string
+
+    /**
+     * @return mixed bool <b>false</b> on NOT syncing, when syncing,
+     *          <b>array('startingBlock'=>quantity, 'currentBlock'=>quantity, 'highestBlock'=>quantity)</b> will be return.
+     */
+    public function eth_syncing(): mixed
+    {
+        $result = $this->callNamed(__FUNCTION__, array());
+
+        // On false, server is not syncing, on assoc array, server is syncing.
+        if ($result === false) {
+            return false;
+        } else {
+            $rtn = array(
+                'startingBlock'=>quantity::fromHex($result['startingBlock']),
+                'currentBlock'=>quantity::fromHex($result['currentBlock']),
+                'highestBlock'=>quantity::fromHex($result['highestBlock']),
+            );
+
+            return $rtn;
+        }
+    }
+    public function eth_coinbase(): data
+    {
+        return data::fromHex($this->callNamed(__FUNCTION__, array()));
+    }
+    public function eth_mining(): bool
     {
         return $this->callNamed(__FUNCTION__, array());
     }
-    public function eth_coinbase(): string
+    public function eth_hashrate(): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__, array()));
     }
-    public function eth_mining(): string
+    public function eth_gasPrice(): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__, array()));
     }
-    public function eth_hashrate(): string
+
+    /**
+     * @return array Array of data
+     */
+    public function eth_accounts(): array
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__, array());
+        $rtn = [];
+
+        for ($i = 0; $i < count($result); $i++)
+            $rtn[$i] = data::fromHex($result[$i]);
+
+        return $rtn;
     }
-    public function eth_gasPrice(): string
+    public function eth_blockNumber(): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__, array()));
     }
-    public function eth_accounts(): string
+
+    public function eth_getBalance(data $address): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__,
+            array($address->toJsonCompatible())
+        ));
     }
-    public function eth_blockNumber(): string
+
+    /**
+     * @param data $address Address data
+     * @param quantity $position Storage position
+     * @param $blockParameter blockParameter Block parameter
+     * @return data Value at storage position
+     */
+    public function eth_getStorageAt(data $address, quantity $position, blockParameter $blockParameter): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $address->toJsonCompatible(),
+                $position->toJsonCompatible(),
+                $blockParameter->toJsonCompatible()
+            )
+        ));
     }
-    public function eth_getBalance(): string
+    public function eth_getTransactionCount(data $address, blockParameter $blockParameter): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $address->toJsonCompatible(),
+                $blockParameter->toJsonCompatible()
+            )
+        ));
     }
-    public function eth_getStorageAt(): string
+    public function eth_getBlockTransactionCountByHash(data $blockHash): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__,
+            array($blockHash->toJsonCompatible())
+        ));
     }
-    public function eth_getTransactionCount(): string
+    public function eth_getBlockTransactionCountByNumber(blockParameter $blockParameter): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__,
+            array($blockParameter->toJsonCompatible())
+        ));
     }
-    public function eth_getBlockTransactionCountByHash(): string
+    public function eth_getUncleCountByBlockHash(data $blockHash): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__,
+            array($blockHash->toJsonCompatible())
+        ));
     }
-    public function eth_getBlockTransactionCountByNumber(): string
+    // FIXME json RPC api web page suspicious / they say parameter is block parameter but showing quantity
+    public function eth_getUncleCountByBlockNumber(blockParameter $blockParameter): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__,
+            array($blockParameter->toJsonCompatible())
+        ));
     }
-    public function eth_getUncleCountByBlockHash(): string
+    public function eth_getCode(data $address, blockParameter $blockParameter): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $address->toJsonCompatible(),
+                $blockParameter->toJsonCompatible()
+            )
+        ));
     }
-    public function eth_getUncleCountByBlockNumber(): string
+    public function eth_sign(data $address, data $message): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $address->toJsonCompatible(),
+                $message->toJsonCompatible()
+            )
+        ));
     }
-    public function eth_getCode(): string
+    public function eth_sendTransaction(transaction $transaction): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array($transaction->toJsonCompatible())
+        ));
     }
-    public function eth_sign(): string
+    public function eth_sendRawTransaction(data $signedTransactionData): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array($signedTransactionData->toJsonCompatible())
+        ));
     }
-    public function eth_sendTransaction(): string
+    public function eth_call(data $transaction, blockParameter $blockParameter): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $transaction->toJsonCompatible(),
+                $blockParameter->toJsonCompatible()
+            )
+        ));
     }
-    public function eth_sendRawTransaction(): string
+    public function eth_estimateGas(transaction $transaction, blockParameter $blockParameter): quantity
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return quantity::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $transaction->toJsonCompatible(),
+                $blockParameter->toJsonCompatible()
+            )
+        ));
     }
-    public function eth_call(): string
+
+    /**
+     * @param data $blockHash Hash of
+     * @param bool $fullTransaction Set this true to include the full transaction objects,
+     *              false to only hashes of the transactions.
+     * @return mixed Null when no block was found, block object if block was found
+     */
+    public function eth_getBlockByHash(data $blockHash, bool $fullTransaction): block
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return block::fromASSOC($this->callNamed(__FUNCTION__,
+            array(
+                $blockHash->toJsonCompatible(),
+                $fullTransaction
+            )
+        ), $fullTransaction);
     }
-    public function eth_estimateGas(): string
+    public function eth_getBlockByNumber(blockParameter $blockParameter, bool $fullTransaction): block
     {
-        return $this->callNamed(__FUNCTION__, array());
-    }
-    public function eth_getBlockByHash(): string
-    {
-        return $this->callNamed(__FUNCTION__, array());
-    }
-    public function eth_getBlockByNumber(): string
-    {
-        return $this->callNamed(__FUNCTION__, array());
+        return block::fromASSOC($this->callNamed(__FUNCTION__,
+            array(
+                $blockParameter->toJsonCompatible(),
+                $fullTransaction
+            )
+        ), $fullTransaction);
     }
     public function eth_getTransactionByHash(): string
     {
