@@ -11,7 +11,7 @@ include_once __DIR__.'\NekoniumType.php';
  *
  * @package kabayaki\PHPNekonium
  */
-class transactions
+class transactions implements NekoniumType
 {
     private $hashOnly;
     private $transactions;
@@ -100,5 +100,14 @@ class transactions
     public function get(): array
     {
         return $this->transactions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toJsonCompatible()
+    {
+        // TODO: Implement toJsonCompatible() method.
+        // TODO Same with block
     }
 }

@@ -8,6 +8,7 @@ include_once __DIR__.'\util\blockParameter.php';
 include_once __DIR__.'\util\quantity.php';
 include_once __DIR__.'\util\transaction.php';
 include_once __DIR__.'\util\transactions.php';
+include_once __DIR__.'\util\transactionReceipt.php';
 
 /**
  * Nekonium API method caller.
@@ -208,54 +209,127 @@ abstract class NekMethodCaller extends NekClient
     }
 
     /**
-     * @param data $blockHash Hash of
+     * @param data $blockHash The data object of hash of the block to get
      * @param bool $fullTransaction Set this true to include the full transaction objects,
      *              false to only hashes of the transactions.
-     * @return mixed Null when no block was found, block object if block was found
+     * @return block|null Null when no block was found, block object if block was found
      */
     public function eth_getBlockByHash(data $blockHash, bool $fullTransaction): block
     {
-        return block::fromASSOC($this->callNamed(__FUNCTION__,
+        $result = $this->callNamed(__FUNCTION__,
             array(
                 $blockHash->toJsonCompatible(),
                 $fullTransaction
             )
-        ), $fullTransaction);
+        );
+
+        if ($result === null)
+            return null;
+
+        return block::fromASSOC($result, $fullTransaction, false);
     }
+    /**
+     * @param blockParameter $blockParameter blockParameter of the block to get
+     * @param bool $fullTransaction Set this true to include the full transaction objects,
+     *              false to only hashes of the transactions.
+     * @return block|null Null when no block was found, block object if block was found
+     */
     public function eth_getBlockByNumber(blockParameter $blockParameter, bool $fullTransaction): block
     {
-        return block::fromASSOC($this->callNamed(__FUNCTION__,
+        $result = $this->callNamed(__FUNCTION__,
             array(
                 $blockParameter->toJsonCompatible(),
                 $fullTransaction
             )
-        ), $fullTransaction);
+        );
+
+        if ($result === null)
+            return null;
+
+        return block::fromASSOC($result, $fullTransaction, false);
     }
-    public function eth_getTransactionByHash(): string
+
+    /**
+     * @param data $transactionHash The data object of hash of transaction to find
+     * @return transaction|null Null when no transaction was found, transaction object if transaction was found
+     */
+    public function eth_getTransactionByHash(data $transactionHash): transaction
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__,
+            array($transactionHash->toJsonCompatible())
+        );
+
+        if ($result === null)
+            return null;
+
+        return transaction::fromASSOC($result);
     }
-    public function eth_getTransactionByBlockHashAndIndex(): string
+    public function eth_getTransactionByBlockHashAndIndex(data $blockHash, quantity $transactionIndex): transaction
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__,
+            array(
+                $blockHash->toJsonCompatible(),
+                $transactionIndex->toJsonCompatible()
+            )
+        );
+
+        if ($result === null)
+            return null;
+
+        return transaction::fromASSOC($result);
     }
-    public function eth_getTransactionByBlockNumberAndIndex(): string
+    public function eth_getTransactionByBlockNumberAndIndex(blockParameter $blockParameter, quantity $transactionIndex): transaction
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__,
+            array(
+                $blockParameter->toJsonCompatible(),
+                $transactionIndex->toJsonCompatible()
+            )
+        );
+
+        if ($result === null)
+            return null;
+
+        return transaction::fromASSOC($result);
     }
-    public function eth_getTransactionReceipt(): string
+    public function eth_getTransactionReceipt(data $transactionHash): transactionReceipt
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__,
+            array($transactionHash->toJsonCompatible())
+        );
+
+        if ($result === null)
+            return null;
+
+        return transactionReceipt::fromASSOC($result);
     }
-    public function eth_getUncleByBlockHashAndIndex(): string
+    public function eth_getUncleByBlockHashAndIndex(data $blockHash, quantity $uncleIndex): block
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__,
+            array(
+                $blockHash->toJsonCompatible(),
+                $uncleIndex->toJsonCompatible()
+            )
+        );
+
+        return block::fromASSOC($result, false, true);
     }
-    public function eth_getUncleByBlockNumberAndIndex(): string
+    public function eth_getUncleByBlockNumberAndIndex(blockParameter $blockParameter, quantity $uncleIndex): block
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__,
+            array(
+                $blockParameter->toJsonCompatible(),
+                $uncleIndex->toJsonCompatible()
+            )
+        );
+
+        return block::fromASSOC($result, false, true);
     }
-    public function eth_getCompilers(): string
+
+    /**
+     * @return array Array of string
+     */
+    public function eth_getCompilers(): array
     {
         return $this->callNamed(__FUNCTION__, array());
     }
@@ -263,6 +337,7 @@ abstract class NekMethodCaller extends NekClient
     {
         return $this->callNamed(__FUNCTION__, array());
     }
+    // TODO I guess they removed compiling thing
     public function eth_compileSolidity(): string
     {
         return $this->callNamed(__FUNCTION__, array());

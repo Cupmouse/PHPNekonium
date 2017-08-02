@@ -24,6 +24,7 @@ class data implements NekoniumType
      * Does not check whether $data is valid hex or not!
      *
      * @param $hexData string Data hex string
+     * @throws \InvalidArgumentException If $hexData is not prefixed with '0x'
      */
     private function __construct(string $hexData)
     {
@@ -42,10 +43,11 @@ class data implements NekoniumType
 
     /**
      * Alias for creating a new instance from '0x' prefixed hex string.
-     * if '0x' string was given, it will return the data same as {@link nothing()}.
+     * If '0x' string was given, it will return the data same as {@link nothing()}.
      *
      * @param $hex string A hex string that will be stored on new data as exactly the same
      * @return data New data
+     * @throws \InvalidArgumentException If $hex is not prefixed with '0x'
      */
     public static function fromHex(string $hex): data
     {
@@ -55,6 +57,27 @@ class data implements NekoniumType
         } else {
             return new data($hex);
         }
+    }
+
+    /**
+     * Alias for creating a new instance from '0x' prefixed hex string.
+     * If '0x' string was given, it will return the data same as {@link nothing()}.
+     * And $hex was null, will return null.
+     *
+     * @param $hex string A hex string that will be stored on new data as exactly the same
+     * @return data New data
+     * @throws \InvalidArgumentException If $hex is not prefixed with '0x' or if $hex was other than null or string
+     */
+    public static function fromHexNullable($hex)
+    {
+        if ($hex === null) {
+            return null;
+        }
+        if (!is_string($hex)) {
+            throw new \InvalidArgumentException('$hex must be null or string');
+        }
+
+        return self::fromHex($hex);
     }
 
     /**

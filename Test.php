@@ -8,7 +8,8 @@ use kabayaki\PHPNekonium as Gnek;
 
 $nek = new Gnek\NekoniumRPC('localhost', 8293);
 
-$block = $nek->eth_getBlockByNumber(Gnek\blockParameter::blockNumber(	Gnek\quantity::fromBCMath('153924')), true);
+var_dump($nek->eth_getBlockByNumber(Gnek\blockParameter::pending(), true));
 
-echo $block->getGasUsed()->asBCMath();
-echo $block->getGasUsed()->asBCMath();
+$receipt = $nek->eth_getTransactionReceipt(Gnek\data::fromHex('0x4dcc0395628e9263d7c44bbf6e9338b54eac970ad253a24d815388dfac6f2013'));
+
+var_dump($receipt);

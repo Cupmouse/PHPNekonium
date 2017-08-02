@@ -66,6 +66,27 @@ class quantity implements NekoniumType
     }
 
     /**
+     * Alias for creating a new instance from '0x' prefixed hex string.
+     * Does not check whether $hex is valid hex or not (0xHEYHEYITSINVALID will pass)!
+     * Just '0x' string will cause exception. unlike {@link data} object, quantity always need to have a 'value'.
+     *
+     * @param $hex string A hex string that will be stored on new quantity as exactly the same
+     * @return quantity New quantity
+     * @throws \InvalidArgumentException If $hex is not prefixed with '0x' or just '0x' (data object permits but quantity does not)
+     */
+    public static function fromHexNullable($hex)
+    {
+        if ($hex === null) {
+            return null;
+        }
+        if (!is_string($hex)) {
+            throw new \InvalidArgumentException('$hex must be null or string');
+        }
+
+        return self::fromHex($hex);
+    }
+
+    /**
      * Create new quantity with BCMath string.
      * BCMath string will be converted into hex string and stored on new quantity.
      *

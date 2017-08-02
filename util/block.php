@@ -90,41 +90,43 @@ class block implements NekoniumType
         $this->uncles = $uncles;
     }
 
-    public static function fromASSOC(array $assoc, bool $fullTransaction)
+    // TODO block uncle or not
+    public static function fromASSOC(array $assoc, bool $fullTransaction, bool $isUncle): block
     {
+        if (!$isUncle) {
+            $transactions = [];
+            if ($fullTransaction) {
+                // Convert transaction array to array of transactions objects
+                for ($i = 0; $i < count($assoc['transactions']); $i++) {
+                    $transactions[$i] = transaction::fromASSOC($assoc['transactions'][$i]);
+                }
 
-        $transactions = [];
-        if ($fullTransaction) {
-            // Convert transaction array to array of transactions objects
-            for ($i = 0; $i < count($assoc['transactions']); $i++) {
-                $transactions[$i] = transaction::fromASSOC($assoc['transactions'][$i]);
+                // Then wrap it with transactions
+                $transactions = transactions::transactionArray($transactions);
+            } else {
+                // Convert transaction hash string array to array of data objects
+                for ($i = 0; $i < count($assoc['transactions']); $i++) {
+                    $transactions[$i] = data::fromHex($assoc['transactions'][$i]);
+                }
+
+                // Then wrap it with transactions
+                $transactions = transactions::hashArray($transactions);
             }
 
-            // Then wrap it with transactions
-            $transactions = transactions::transactionArray($transactions);
-        } else {
-            // Convert transaction hash string array to array of data objects
-            for ($i = 0; $i < count($assoc['transactions']); $i++) {
-                $transactions[$i] = data::fromHex($assoc['transactions'][$i]);
+            // Convert hex string array to data object array
+            $uncles = [];
+            for ($i = 0; $i < count($assoc['uncles']); $i++) {
+                $uncles[$i] = data::fromHex($assoc['uncles'][$i]);
             }
-
-            // Then wrap it with transactions
-            $transactions = transactions::hashArray($transactions);
-        }
-
-        // Convert hex string array to data object array
-        $uncles = [];
-        for ($i = 0; $i < count($assoc['uncles']); $i++) {
-            $uncles[$i] = data::fromHex($assoc['uncles'][$i]);
         }
 
         return new block(
-            quantity::fromHex($assoc['number']),
-            data::fromHex($assoc['hash']),
+            quantity::fromHexNullable($assoc['number']),
+            data::fromHexNullable($assoc['hash']),
             data::fromHex($assoc['parentHash']),
-            data::fromHex($assoc['nonce']),
+            data::fromHexNullable($assoc['nonce']),
             data::fromHex($assoc['sha3Uncles']),
-            data::fromHex($assoc['logsBloom']),
+            data::fromHexNullable($assoc['logsBloom']),
             data::fromHex($assoc['transactionsRoot']),
             data::fromHex($assoc['stateRoot']),
             data::fromHex($assoc['receiptsRoot']),
@@ -139,6 +141,158 @@ class block implements NekoniumType
             $transactions,
             $uncles
         );
+    }
+
+    /**
+     * @return quantity
+     */
+    public function getNumber(): quantity
+    {
+        return $this->number;
+    }
+
+    /**
+     * @return data
+     */
+    public function getHash(): data
+    {
+        return $this->hash;
+    }
+
+    /**
+     * @return data
+     */
+    public function getParentHash(): data
+    {
+        return $this->parentHash;
+    }
+
+    /**
+     * @return data
+     */
+    public function getNonce(): data
+    {
+        return $this->nonce;
+    }
+
+    /**
+     * @return data
+     */
+    public function getSha3Uncles(): data
+    {
+        return $this->sha3Uncles;
+    }
+
+    /**
+     * @return data
+     */
+    public function getLogsBloom(): data
+    {
+        return $this->logsBloom;
+    }
+
+    /**
+     * @return data
+     */
+    public function getTransactionsRoot(): data
+    {
+        return $this->transactionsRoot;
+    }
+
+    /**
+     * @return data
+     */
+    public function getStateRoot(): data
+    {
+        return $this->stateRoot;
+    }
+
+    /**
+     * @return data
+     */
+    public function getReceiptsRoot(): data
+    {
+        return $this->receiptsRoot;
+    }
+
+    /**
+     * @return data
+     */
+    public function getMiner(): data
+    {
+        return $this->miner;
+    }
+
+    /**
+     * @return quantity
+     */
+    public function getDifficulty(): quantity
+    {
+        return $this->difficulty;
+    }
+
+    /**
+     * @return quantity
+     */
+    public function getTotalDifficulty(): quantity
+    {
+        return $this->totalDifficulty;
+    }
+
+    /**
+     * @return data
+     */
+    public function getExtraData(): data
+    {
+        return $this->extraData;
+    }
+
+    /**
+     * @return quantity
+     */
+    public function getSize(): quantity
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return quantity
+     */
+    public function getGasLimit(): quantity
+    {
+        return $this->gasLimit;
+    }
+
+    /**
+     * @return quantity
+     */
+    public function getGasUsed(): quantity
+    {
+        return $this->gasUsed;
+    }
+
+    /**
+     * @return quantity
+     */
+    public function getTimestamp(): quantity
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     * @return transactions
+     */
+    public function getTransactions(): transactions
+    {
+        return $this->transactions;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUncles(): array
+    {
+        return $this->uncles;
     }
 
     /**
