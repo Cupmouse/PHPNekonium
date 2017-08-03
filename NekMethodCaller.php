@@ -346,6 +346,7 @@ abstract class NekMethodCaller extends NekClient
     {
         return $this->callNamed(__FUNCTION__, array());
     }
+    // TODO Filter
     public function eth_newFilter(): string
     {
         return $this->callNamed(__FUNCTION__, array());
@@ -374,34 +375,105 @@ abstract class NekMethodCaller extends NekClient
     {
         return $this->callNamed(__FUNCTION__, array());
     }
-    public function eth_getWork(): string
+
+    /**
+     * @return array An array of data object contains three element
+     */
+    public function eth_getWork(): array
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__, array());
+
+        return array(
+            data::fromHex($result[0]),
+            data::fromHex($result[1]),
+            data::fromHex($result[2])
+        );
     }
-    public function eth_submitWork(): string
+    public function eth_submitWork(data $nonce, data $powHash, data $mixDigest): bool
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__,
+            array(
+                $nonce->toJsonCompatible(),
+                $powHash->toJsonCompatible(),
+                $mixDigest->toJsonCompatible()
+            )
+        );
     }
-    public function eth_submitHashrate(): string
+    // TODO They did not specify type of parameters, i assumed it's data type
+    public function eth_submitHashrate(data $hashRate, data $id): bool
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__, array(
+            $hashRate->toJsonCompatible(),
+            $id->toJsonCompatible()
+        ));
     }
-    public function db_putString(): string
+
+    /**
+     * @deprecated Will be removed in the future
+     * @param string $databaseName
+     * @param string $keyName
+     * @param string $string
+     * @return bool
+     */
+    public function db_putString(string $databaseName, string $keyName, string $string): bool
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__,
+            array(
+                $databaseName,
+                $keyName,
+                $string
+            )
+        );
     }
-    public function db_getString(): string
+    /**
+     * @deprecated Will be removed in the future
+     * @param string $databaseName
+     * @param string $keyName
+     * @return string
+     */
+    public function db_getString(string $databaseName, string $keyName): string
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__,
+            array(
+                $databaseName,
+                $keyName
+            )
+        );
     }
-    public function db_putHex(): string
+
+    /**
+     * @deprecated Will be removed in the future
+     * @param string $databaseName
+     * @param string $keyName
+     * @param data $data
+     * @return bool
+     */
+    public function db_putHex(string $databaseName, string $keyName, data $data): bool
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__,
+            array(
+                $databaseName,
+                $keyName,
+                $data->toJsonCompatible()
+            )
+        );
     }
-    public function db_getHex(): string
+    /**
+     * @deprecated Will be removed in the future
+     * @param string $databaseName
+     * @param string $keyName
+     * @return data
+     */
+    public function db_getHex(string $databaseName, string $keyName): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $databaseName,
+                $keyName
+            )
+        ));
     }
+    // TODO do it later
     public function shh_post(): string
     {
         return $this->callNamed(__FUNCTION__, array());
@@ -615,37 +687,79 @@ abstract class NekMethodCaller extends NekClient
     }
 
     # Personal
-    public function personal_ecRecover(): string
+    // todo where is this method
+    public function personal_ecRecover(data $message, data $signature): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $message->toJsonCompatible(),
+                $signature->toJsonCompatible()
+            )
+        ));
     }
-    public function personal_importRawKey(): string
+    public function personal_importRawKey(data $privateKey, string $passPhrase): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $privateKey->toJsonCompatible(),
+                $passPhrase
+            )
+        ));
     }
-    public function personal_listAccounts(): string
+    public function personal_listAccounts(): array
     {
-        return $this->callNamed(__FUNCTION__, array());
+        $result = $this->callNamed(__FUNCTION__, array());
+
+        $rtn = [];
+        for ($i = 0; $i < count($result); $i++) {
+            $rtn[$i] = data::fromHex($result[$i]);
+        }
+
+        return $rtn;
     }
-    public function personal_lockAccount(): string
+    public function personal_lockAccount(data $account): bool
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__,
+            array($account->toJsonCompatible())
+        );
     }
-    public function personal_newAccount(): string
+    public function personal_newAccount(string $passPhrase): bool
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return $this->callNamed(__FUNCTION__, array(
+            $passPhrase
+        ));
     }
-    public function personal_unlockAccount(): string
+    public function personal_unlockAccount(data $account, string $passPhrase, $duration): bool
     {
-        return $this->callNamed(__FUNCTION__, array());
+        if (gettype($duration) !== 'int')
+            throw new \InvalidArgumentException('$duration must be int');
+
+        return $this->callNamed(__FUNCTION__,
+            array(
+                $account->toJsonCompatible(),
+                $passPhrase,
+                $duration
+            )
+        );
     }
-    public function personal_sendTransaction(): string
+    public function personal_sendTransaction(transaction $transaction, string $passPhrase): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $transaction->toJsonCompatible(),
+                $passPhrase
+            )
+        ));
     }
-    public function personal_sign(): string
+    public function personal_sign(data $message, data $account, string $passPhrase): data
     {
-        return $this->callNamed(__FUNCTION__, array());
+        return data::fromHex($this->callNamed(__FUNCTION__,
+            array(
+                $message->toJsonCompatible(),
+                $account->toJsonCompatible(),
+                $passPhrase
+            )
+        ));
     }
 
     # Txpool

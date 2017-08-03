@@ -90,11 +90,12 @@ class block implements NekoniumType
         $this->uncles = $uncles;
     }
 
-    // TODO block uncle or not
+    // FIXME block uncle or not
     public static function fromASSOC(array $assoc, bool $fullTransaction, bool $isUncle): block
     {
+        $transactions = [];
+
         if (!$isUncle) {
-            $transactions = [];
             if ($fullTransaction) {
                 // Convert transaction array to array of transactions objects
                 for ($i = 0; $i < count($assoc['transactions']); $i++) {
@@ -112,12 +113,12 @@ class block implements NekoniumType
                 // Then wrap it with transactions
                 $transactions = transactions::hashArray($transactions);
             }
+        }
 
-            // Convert hex string array to data object array
-            $uncles = [];
-            for ($i = 0; $i < count($assoc['uncles']); $i++) {
-                $uncles[$i] = data::fromHex($assoc['uncles'][$i]);
-            }
+        // Convert hex string array to data object array
+        $uncles = [];
+        for ($i = 0; $i < count($assoc['uncles']); $i++) {
+            $uncles[$i] = data::fromHex($assoc['uncles'][$i]);
         }
 
         return new block(
